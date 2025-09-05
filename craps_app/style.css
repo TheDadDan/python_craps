@@ -1,0 +1,295 @@
+body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+    color: #fff;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.container {
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 30px 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    text-align: center;
+    width: 90%;
+    max-width: 800px;
+    animation: fadeIn 1s ease-out;
+    border: 2px solid #fff;
+}
+
+h1 {
+    color: #00f2fe;
+    margin-bottom: 25px;
+    font-size: 3em;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.rules-section {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+.rules-section h2 {
+    color: #fff;
+    font-size: 1.8em;
+    margin-bottom: 15px;
+}
+
+.rules-section ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.rules-section li {
+    margin-bottom: 8px;
+    font-size: 1.1em;
+    line-height: 1.4;
+}
+
+.rules-section li strong {
+    color: #00f2fe;
+}
+
+.game-section {
+    margin-top: 30px;
+}
+
+#game-state {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #ffe066;
+}
+
+#point-display {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #aaffaa;
+    margin-top: 15px;
+}
+
+#dice-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+    min-height: 80px;
+}
+
+.die-wrapper {
+    perspective: 1000px;
+    margin: 10px;
+}
+
+.die {
+    width: 70px;
+    height: 70px;
+    background-color: #eee;
+    border: 3px solid #333;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.2em;
+    font-weight: bold;
+    color: #333;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    transition: transform 0.5s ease-out;
+    position: relative;
+    transform-style: preserve-3d;
+}
+
+.rolling .die {
+    animation: roll 1s ease-out forwards;
+}
+
+.dot {
+    width: 15px;
+    height: 15px;
+    background-color: #333;
+    border-radius: 50%;
+    position: absolute;
+}
+
+/* Dot positioning for a standard die */
+.die[data-value="1"] .dot:nth-child(1) {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.die[data-value="2"] .dot:nth-child(1) {
+    top: 15%;
+    left: 15%;
+}
+
+.die[data-value="2"] .dot:nth-child(2) {
+    bottom: 15%;
+    right: 15%;
+}
+
+.die[data-value="3"] .dot:nth-child(1) {
+    top: 15%;
+    left: 15%;
+}
+
+.die[data-value="3"] .dot:nth-child(2) {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.die[data-value="3"] .dot:nth-child(3) {
+    bottom: 15%;
+    right: 15%;
+}
+
+.die[data-value="4"] .dot:nth-child(1) {
+    top: 15%;
+    left: 15%;
+}
+
+.die[data-value="4"] .dot:nth-child(2) {
+    top: 15%;
+    right: 15%;
+}
+
+.die[data-value="4"] .dot:nth-child(3) {
+    bottom: 15%;
+    left: 15%;
+}
+
+.die[data-value="4"] .dot:nth-child(4) {
+    bottom: 15%;
+    right: 15%;
+}
+
+.die[data-value="5"] .dot:nth-child(1) {
+    top: 15%;
+    left: 15%;
+}
+
+.die[data-value="5"] .dot:nth-child(2) {
+    top: 15%;
+    right: 15%;
+}
+
+.die[data-value="5"] .dot:nth-child(3) {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.die[data-value="5"] .dot:nth-child(4) {
+    bottom: 15%;
+    left: 15%;
+}
+
+.die[data-value="5"] .dot:nth-child(5) {
+    bottom: 15%;
+    right: 15%;
+}
+
+.die[data-value="6"] .dot:nth-child(1) {
+    top: 15%;
+    left: 15%;
+}
+
+.die[data-value="6"] .dot:nth-child(2) {
+    top: 15%;
+    right: 15%;
+}
+
+.die[data-value="6"] .dot:nth-child(3) {
+    top: 50%;
+    left: 15%;
+    transform: translateY(-50%);
+}
+
+.die[data-value="6"] .dot:nth-child(4) {
+    top: 50%;
+    right: 15%;
+    transform: translateY(-50%);
+}
+
+.die[data-value="6"] .dot:nth-child(5) {
+    bottom: 15%;
+    left: 15%;
+}
+
+.die[data-value="6"] .dot:nth-child(6) {
+    bottom: 15%;
+    right: 15%;
+}
+
+button {
+    background-color: #00f2fe;
+    color: #333;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    margin: 10px;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #4facfe;
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+#roll-results {
+    font-size: 1.3em;
+    margin-top: 20px;
+    color: #fff;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes roll {
+    0% {
+        transform: rotateX(0deg) rotateY(0deg);
+    }
+
+    25% {
+        transform: rotateX(90deg) rotateY(90deg);
+    }
+
+    50% {
+        transform: rotateX(180deg) rotateY(180deg);
+    }
+
+    75% {
+        transform: rotateX(270deg) rotateY(270deg);
+    }
+
+    100% {
+        transform: rotateX(360deg) rotateY(360deg);
+    }
+}

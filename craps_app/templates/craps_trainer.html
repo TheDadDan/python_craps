@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Craps Trainer</title>
+    <link rel="stylesheet" href="{{ url_for('craps_app.static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Combined Sidebar Container -->
+    <div class="sidebar-container">
+        <!-- Navigation Sidebar -->
+        <div class="sidebar top-sidebar">
+            <h2>Games</h2>
+            <ul>
+                <li><a href="/">Dice Simulator</a></li>
+                <li><a href="/craps">Craps Trainer</a></li>
+            </ul>
+        </div>
+
+        <!-- Betting Info Sidebar -->
+        <div class="sidebar bottom-sidebar">
+            <h2>Betting Guide</h2>
+            <div class="betting-info">
+                <div class="bet-type">
+                    <h4>Pass Line Bet</h4>
+                    <ul>
+                        <li>Wins on a 7 or 11 on the come-out or point pass
+                        <li>Loses on 2, 3, or 12 ("craps") only on the come-out roll</li>
+                    </ul>
+                </div>
+                <div class="bet-type">
+                    <h4>Don't Pass Bet</h4>
+                    <p>Opposite of pass</p>
+                </div>
+                <div class="bet-type">
+                    <h4>Single-Roll Bet Payouts</h4>
+                    <ul>
+                        <li>7: Pays 4:1</li>
+                        <li>Craps (2,3,12): Pays 7:1</li>
+                        <li>Either 3 or 11: Pays 15:1</li>
+                        <li>Either 2 or 12: Pays 15:1</li>
+                        <li>Called 2: Pays 30:1</li>
+                        <li>Called 12: Pays 30:1</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <h1>Craps Trainer</h1>
+            <div class="rules-section">
+                <h2>How to Play Craps (Basic Rules)</h2>
+                <ul>
+                    <li><strong>Come Out Roll (The First Roll):</strong></li>
+                    <li>- Roll 7 or 11: <strong>Win!</strong> (Natural)</li>
+                    <li>- Roll 2, 3, or 12: <strong>Lose!</strong> (Craps)</li>
+                    <li>- Roll 4, 5, 6, 8, 9, or 10: That number becomes the <strong>Point</strong>.</li>
+                    <li><strong>After Point is Established:</strong></li>
+                    <li>- Roll the <strong>Point</strong> again: <strong>Win!</strong></li>
+                    <li>- Roll 7: <strong>Lose!</strong> (Seven Out - round ends, new come out roll)</li>
+                    <li>- Roll any other number: Roll again.</li>
+                </ul>
+            </div>
+            <div class="game-section">
+                <p id="game-state">Press 'Roll Dice' to start a new round!</p>
+                <div id="dice-container"></div>
+                <p id="roll-results"></p>
+                <p id="point-display"></p>
+                <button id="rollButton">Roll Dice</button>
+                <button id="resetButton" style="display: none;">Reset Game</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gambling Simulator Sidebar -->
+    <div class="sidebar right-sidebar">
+        <h2>Place Your Bets!</h2>
+        <div class="betting-simulator">
+            <div class="player-stats">
+                <p>Balance: $<span id="player-balance">1000</span></p>
+            </div>
+            <div class="bet-section">
+                <h3>Opening Bets</h3>
+                <label for="pass-line-bet">Pass Line:</label>
+                <input type="number" id="pass-line-bet" min="0" value="0">
+                <label for="dont-pass-bet">Don't Pass:</label>
+                <input type="number" id="dont-pass-bet" min="0" value="0">
+            </div>
+            <div class="bet-section">
+                <h3>Single Roll Bets</h3>
+                <p>Select your single roll bet and amount:</p>
+                <select id="single-roll-bet-type">
+                    <option value="none">No Single Roll Bet</option>
+                    <option value="any-7">Any 7 (4:1)</option>
+                    <option value="any-craps">Any Craps (7:1)</option>
+                    <option value="two-or-twelve">2 or 12 (15:1)</option>
+                    <option value="three-or-eleven">3 or 11 (15:1)</option>
+                    <option value="called-2">Called 2 (30:1)</option>
+                    <option value="called-12">Called 12 (30:1)</option>
+                </select>
+                <input type="number" id="single-roll-bet-amount" min="0" value="0">
+            </div>
+            <button id="placeBetsButton">Place Bets</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('craps_app.static', filename='script.js') }}"></script>
+</body>
+</html>

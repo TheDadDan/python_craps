@@ -1,0 +1,529 @@
+body {
+    font-family: 'Arial', sans-serif;
+    display: grid;
+    grid-template-columns: 200px 1fr 250px;
+    /* Left sidebar, main content, right sidebar */
+    grid-template-areas: "left-sidebar main-content right-sidebar";
+    min-height: 100vh;
+    background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.sidebar-container {
+    display: flex;
+    flex-direction: column;
+    grid-area: left-sidebar;
+    /* Assign to left-sidebar grid area */
+}
+
+.top-sidebar {
+    flex: 0 0 auto;
+    /* Don't grow, don't shrink, auto height */
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.bottom-sidebar {
+    flex: 1;
+    /* Grow to fill remaining space */
+    background-color: #f8f9fa;
+    padding: 20px;
+    overflow-y: auto;
+    /* Scrollable if content is too long */
+}
+
+.sidebar {
+    width: 200px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    z-index: 1000;
+    /* Ensure sidebar is on top */
+}
+
+.sidebar h2 {
+    color: #00f2fe;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+    width: 100%;
+}
+
+.sidebar li {
+    margin-bottom: 10px;
+}
+
+.sidebar a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.1em;
+    display: block;
+    padding: 8px 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar a:hover {
+    background-color: #555;
+}
+
+.betting-info {
+    margin-top: 20px;
+}
+
+.bet-type {
+    margin-bottom: 20px;
+}
+
+.bet-type h4 {
+    color: #fff;
+    /* Change from #2c3e50 to white */
+    margin-bottom: 8px;
+}
+
+.bet-type p {
+    color: #fff;
+    /* Change from #666 to white */
+    font-size: 0.9em;
+    margin: 5px 0;
+}
+
+.bet-type ul {
+    list-style: none;
+    padding-left: 0;
+    font-size: 0.9em;
+}
+
+.bet-type li {
+    margin: 5px 0;
+    color: #fff;
+    /* Change from #555 to white */
+}
+
+.main-content {
+    grid-area: main-content;
+    /* Assign to main-content grid area */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+    margin-left: 0;
+    /* Remove fixed margin, grid handles it */
+    padding: 20px;
+}
+
+.betting-simulator {
+    margin-top: 20px;
+    width: 100%;
+}
+
+.player-stats {
+    margin-bottom: 20px;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.bet-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.bet-section h3 {
+    color: #00f2fe;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+.bet-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 1.1em;
+}
+
+.bet-section input[type="number"],
+.bet-section select {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #555;
+    background-color: #333;
+    color: white;
+    font-size: 1em;
+}
+
+.bet-section input[type="number"]:focus,
+.bet-section select:focus {
+    outline: none;
+    border-color: #00f2fe;
+    box-shadow: 0 0 5px rgba(0, 242, 254, 0.5);
+}
+
+.bet-section option {
+    background-color: #333;
+    color: white;
+}
+
+#placeBetsButton {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.2em;
+    background-color: #00f2fe;
+    color: #333;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#placeBetsButton:hover {
+    background-color: #00c7d1;
+}
+
+/* Adjust existing sidebar styles for grid layout */
+.sidebar.top-sidebar,
+.sidebar.bottom-sidebar {
+    width: auto;
+    /* Allow flexbox to manage width within grid cell */
+    position: static;
+    /* Remove fixed positioning as grid handles it */
+    left: auto;
+    top: auto;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Ensure the existing .sidebar styles for background, color, padding, etc., are applied */
+.sidebar {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    z-index: 1000;
+}
+
+.container {
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 30px 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    text-align: center;
+    width: 100%;
+    /* Adjust width to fit within main-content flex-item */
+    max-width: 800px;
+    animation: fadeIn 1s ease-out;
+    border: 2px solid #fff;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    color: #00f2fe;
+    margin-bottom: 25px;
+    font-size: 3em;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    font-size: 1.8em;
+    margin-bottom: 20px;
+}
+
+.rules-section {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 15px 25px;
+    margin: 10px auto;
+    text-align: left;
+    width: 80%;
+}
+
+.rules-section h2 {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    color: #000000;
+    text-align: center;
+}
+
+.rules-section ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 8px auto;
+    max-width: 500px;
+}
+
+.rules-section li {
+    font-size: 0.9em;
+    line-height: 1.2;
+    margin: 6px 0;
+    color: #000000;
+    padding-left: 15px;
+    text-align: left;
+}
+
+.rules-section li strong {
+    color: #000000;
+    font-weight: bold;
+}
+
+.game-section {
+    margin-top: 30px;
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 15px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: #000000;
+    /* Change from #ffd700 to black */
+}
+
+#game-state {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #000000;
+    /* Change from #ffd700 to black */
+}
+
+#point-display {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #ff0000;
+    /* Change from #aaffaa to red */
+    margin-top: 15px;
+}
+
+#dice-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+    min-height: 80px;
+}
+
+.die-wrapper {
+    perspective: 1000px;
+    margin: 10px;
+}
+
+.die {
+    width: 70px;
+    height: 70px;
+    background-color: #eee;
+    border: 3px solid #333;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.2em;
+    font-weight: bold;
+    color: #333;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    transition: transform 0.5s ease-out;
+    position: relative;
+    transform-style: preserve-3d;
+}
+
+.rolling .die {
+    animation: roll 1s ease-out forwards;
+}
+
+.dot {
+    width: 15px;
+    height: 15px;
+    background-color: #333;
+    border-radius: 50%;
+    position: absolute;
+}
+
+/* Dot positioning for a standard die */
+.die[data-value="1"] .dot:nth-child(1) {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.die[data-value="2"] .dot:nth-child(1) {
+    top: 15%;
+    left: 15%;
+}
+
+.die[data-value="2"] .dot:nth-child(2) {
+    bottom: 15%;
+    right: 15%;
+}
+
+.die[data-value="3"] .dot:nth-child(1) {
+    top: 15%;
+    left: 15%;
+}
+
+.die[data-value="3"] .dot:nth-child(2) {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.die[data-value="3"] .dot:nth-child(3) {
+    bottom: 15%;
+    right: 15%;
+}
+
+.die[data-value="4"] .dot:nth-child(1) {
+    top: 15%;
+    left: 15%;
+}
+
+.die[data-value="4"] .dot:nth-child(2) {
+    top: 15%;
+    right: 15%;
+}
+
+.die[data-value="4"] .dot:nth-child(3) {
+    bottom: 15%;
+    left: 15%;
+}
+
+.die[data-value="4"] .dot:nth-child(4) {
+    bottom: 15%;
+    right: 15%;
+}
+
+.die[data-value="5"] .dot:nth-child(1) {
+    top: 15%;
+    left: 15%;
+}
+
+.die[data-value="5"] .dot:nth-child(2) {
+    top: 15%;
+    right: 15%;
+}
+
+.die[data-value="5"] .dot:nth-child(3) {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.die[data-value="5"] .dot:nth-child(4) {
+    bottom: 15%;
+    left: 15%;
+}
+
+.die[data-value="5"] .dot:nth-child(5) {
+    bottom: 15%;
+    right: 15%;
+}
+
+.die[data-value="6"] .dot:nth-child(1) {
+    top: 15%;
+    left: 15%;
+}
+
+.die[data-value="6"] .dot:nth-child(2) {
+    top: 15%;
+    right: 15%;
+}
+
+.die[data-value="6"] .dot:nth-child(3) {
+    top: 50%;
+    left: 15%;
+    transform: translateY(-50%);
+}
+
+.die[data-value="6"] .dot:nth-child(4) {
+    top: 50%;
+    right: 15%;
+    transform: translateY(-50%);
+}
+
+.die[data-value="6"] .dot:nth-child(5) {
+    bottom: 15%;
+    left: 15%;
+}
+
+.die[data-value="6"] .dot:nth-child(6) {
+    bottom: 15%;
+    right: 15%;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+#roll-results {
+    font-size: 1.3em;
+    margin-top: 20px;
+    color: #000000;
+    /* Change from #ffd700 to black */
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes roll {
+    0% {
+        transform: rotateX(0deg) rotateY(0deg);
+    }
+
+    25% {
+        transform: rotateX(90deg) rotateY(90deg);
+    }
+
+    50% {
+        transform: rotateX(180deg) rotateY(180deg);
+    }
+
+    75% {
+        transform: rotateX(270deg) rotateY(270deg);
+    }
+
+    100% {
+        transform: rotateX(360deg) rotateY(360deg);
+    }
+}

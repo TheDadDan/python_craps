@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Craps Trainer</title>
+    <link rel="stylesheet" href="/static_craps/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Craps Trainer</h1>
+        <div class="rules-section">
+            <h2>How to Play Craps (Basic Rules)</h2>
+            <ul>
+                <li>**Come Out Roll (First Roll):**</li>
+                <li>- Roll 7 or 11: **Win!** (Natural)</li>
+                <li>- Roll 2, 3, or 12: **Lose!** (Craps)</li>
+                <li>- Roll 4, 5, 6, 8, 9, or 10: That number becomes the **Point**.</li>
+                <li>**After Point is Established:**</li>
+                <li>- Roll the **Point** again: **Win!**</li>
+                <li>- Roll 7: **Lose!** (Seven Out - round ends, new come out roll)</li>
+                <li>- Roll any other number: Roll again.</li>
+            </ul>
+        </div>
+        <div class="game-section">
+            <p id="game-state">Press 'Roll Dice' to start a new round!</p>
+            <div id="dice-container"></div>
+            <p id="roll-results"></p>
+            <p id="point-display"></p>
+            <button id="rollButton">Roll Dice</button>
+            <button id="resetButton" style="display: none;">Reset Game</button>
+        </div>
+    </div>
+    <script src="/static_craps/script.js"></script>
+</body>
+
+</html>

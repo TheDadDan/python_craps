@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dice Rolling Simulator</title>
+    <link rel="stylesheet" href="{{ url_for('dice_app.static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="sidebar">
+        <h2>Games</h2>
+        <ul>
+            <li><a href="/">Dice Simulator</a></li>
+            <li><a href="/craps">Craps Trainer</a></li>
+        </ul>
+    </div>
+    <div class="main-content">
+        <div class="container">
+            <h1>Dice Rolling Simulator</h1>
+            <div class="input-group">
+                <label for="numDice">Number of Dice:</label>
+                <input type="number" id="numDice" value="1" min="1">
+            </div>
+            <div class="input-group">
+                <label for="numSides">Number of Sides:</label>
+                <input type="number" id="numSides" value="6" min="1">
+            </div>
+            <button id="rollButton">Roll Dice</button>
+            <div id="dice-container"></div>
+            <p id="total-results"></p>
+        </div>
+    </div>
+    <script src="{{ url_for('dice_app.static', filename='script.js') }}"></script>
+</body>
+
+</html>
