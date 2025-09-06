@@ -1,10 +1,13 @@
 # Python 3.13.6
 import random
 import os
-from flask import Flask, render_template, request, jsonify, Blueprint
+# Import session
+from flask import Flask, render_template, request, jsonify, Blueprint, session
 
 # Main Flask app
 app = Flask(__name__)
+# IMPORTANT: Change this to a strong, random key in production!
+app.config['SECRET_KEY'] = 'your_super_secret_key_here'
 
 # Dice Rolling App Blueprint
 dice_bp = Blueprint('dice_app', __name__,
@@ -52,35 +55,34 @@ craps_bp = Blueprint('craps_app', __name__,
                          app.root_path, 'craps_app', 'static'),
                      static_url_path='/static/craps_app')
 
-# Craps game state (moved into blueprint scope or managed centrally if needed, for now global)
-craps_game_state = {
-    'point': None,
-    'round_over': True,
-    'last_roll': [],
-    'message': 'Welcome to Craps! Roll the dice to start a new round.',
-    'player_balance': 1000,
-    'active_bets': {
-        'pass_line': 0,
-        'dont_pass': 0,
-        'single_roll': {'type': 'none', 'amount': 0}
-    }
-}
+# craps_game_state is now managed in Flask session
+# global craps_game_state # Remove global variable declaration
+
+
+def get_craps_game_state():
+    if 'craps_game_state' not in session or session['craps_game_state'] is None:
+        session['craps_game_state'] = {
+            'point': None,
+            'round_over': True,
+            'last_roll': [],
+            'message': 'Welcome to Craps! Roll the dice to start a new round.',
+            'player_balance': 1000,
+            'active_bets': {
+                'pass_line': 0,
+                'dont_pass': 0,
+                'single_roll': {'type': 'none', 'amount': 0}
+            }
+        }
+    return session['craps_game_state']
 
 
 def reset_craps_game():
-    global craps_game_state
-    craps_game_state = {
-        'point': None,
-        'round_over': True,
-        'last_roll': [],
-        'message': 'Welcome to Craps! Roll the dice to start a new round.',
-        'player_balance': 1000,
-        'active_bets': {
-            'pass_line': 0,
-            'dont_pass': 0,
-            'single_roll': {'type': 'none', 'amount': 0}
-        }
-    }
+    # global craps_game_state # Remove global keyword
+    # Clear craps_game_state from session
+    session.pop('craps_game_state', None)
+    # Ensure it's re-initialized for the next access
+    get_craps_game_state()
+    print("[DEBUG] craps_reset called, session state reset.")
 
 
 @craps_bp.route('/')
@@ -90,7 +92,10 @@ def craps_index():
 
 @craps_bp.route('/craps_roll', methods=['POST'])
 def craps_roll():
-    global craps_game_state
+    # global craps_game_state # Remove global keyword
+    craps_game_state = get_craps_game_state()  # Get state from session
+
+    print(f"[DEBUG] craps_roll initial game state: {craps_game_state}")
 
     if craps_game_state['round_over']:
         # Come out roll
@@ -154,7 +159,10 @@ def craps_roll():
                 outcome_message.append(
                     f'Won ${dont_pass_bet_amount} on Don\'t Pass!')
             elif total == 7 or total == 11:
-                # Loss is already accounted for when placing the bet, no further deduction
+                # Loss is already accounted for when placing the bet, no further deduction of original bet
+                # but we explicitly make balance_change -= 0 here to ensure it's handled in the sum of balance_change
+                # Explicitly show no additional change, as original bet was already deducted.
+                balance_change -= 0
                 outcome_message.append(
                     f'Lost ${dont_pass_bet_amount} on Don\'t Pass.')
             elif total == 12:
@@ -182,10 +190,14 @@ def craps_roll():
             # Pass/Don't Pass bets remain active if point is established
 
         craps_game_state['player_balance'] += balance_change
+        print(
+            f"[DEBUG] craps_roll after processing, balance_change: {balance_change}, new balance: {craps_game_state['player_balance']}")
         if outcome_message:
             craps_game_state['message'] += "\n" + "\n".join(outcome_message)
         else:
             craps_game_state['message'] += f"\n(Balance: ${craps_game_state['player_balance']})"
+        # IMPORTANT: Explicitly save the modified state back to the session
+        session['craps_game_state'] = craps_game_state
 
     else:
         # Point established roll
@@ -266,19 +278,28 @@ def craps_roll():
             # Bets remain active
 
         craps_game_state['player_balance'] += balance_change
+        print(
+            f"[DEBUG] craps_roll after processing, balance_change: {balance_change}, new balance: {craps_game_state['player_balance']}")
         if outcome_message:
             craps_game_state['message'] += f"\n(Balance: ${craps_game_state['player_balance']})\n" + "\n".join(
                 outcome_message)
         else:
             craps_game_state['message'] += f"\n(Balance: ${craps_game_state['player_balance']})"
+        # IMPORTANT: Explicitly save the modified state back to the session
+        session['craps_game_state'] = craps_game_state
 
     return jsonify(craps_game_state)
 
 
 @craps_bp.route('/place_bets', methods=['POST'])
 def craps_place_bets():
-    global craps_game_state
+    # global craps_game_state # Remove global keyword
+    craps_game_state = get_craps_game_state()  # Get state from session
     data = request.json
+
+    print(f"[DEBUG] craps_place_bets received data: {data}")
+    print(
+        f"[DEBUG] craps_place_bets initial balance: {craps_game_state['player_balance']}")
 
     pass_line_bet = data.get('pass_line_bet', 0)
     dont_pass_bet = data.get('dont_pass_bet', 0)
@@ -287,9 +308,9 @@ def craps_place_bets():
 
     # Reset active bets before setting new ones
     craps_game_state['active_bets'] = {
-        'pass_line': 0,
-        'dont_pass': 0,
-        'single_roll': {'type': 'none', 'amount': 0}
+        'pass_line': pass_line_bet,  # Set new pass line bet
+        'dont_pass': dont_pass_bet,  # Set new don't pass bet
+        'single_roll': {'type': single_roll_bet_type, 'amount': single_roll_bet_amount}
     }
 
     # Validate bets and update balance
@@ -304,26 +325,32 @@ def craps_place_bets():
             return jsonify({'success': False, 'message': 'Bet amounts cannot be negative.'}), 400
 
         craps_game_state['player_balance'] -= total_bet_amount
-        craps_game_state['active_bets'] = {
-            'pass_line': pass_line_bet,
-            'dont_pass': dont_pass_bet,
-            'single_roll': {'type': single_roll_bet_type, 'amount': single_roll_bet_amount}
-        }
-        return jsonify({'success': True, 'new_balance': craps_game_state['player_balance'], 'message': 'Bets placed successfully!'})
+        print(
+            f"[DEBUG] craps_place_bets deducted {total_bet_amount}. New balance: {craps_game_state['player_balance']}")
+        # IMPORTANT: Explicitly save the modified state back to the session
+        session['craps_game_state'] = craps_game_state
+
+        # Return the full game state so frontend can update consistently
+        craps_game_state['message'] = 'Bets placed successfully!'
+        return jsonify(craps_game_state)
     else:
+        print(
+            f"[DEBUG] craps_place_bets failed: {craps_game_state['message']}")
         return jsonify({'success': False, 'message': 'Cannot place bets during an active round. Please wait for the current round to finish.'}), 400
 
 
 @craps_bp.route('/craps_reset', methods=['POST'])
 def craps_reset():
+    # global craps_game_state # Remove global keyword
     reset_craps_game()
     # After reset, ensure active bets are also reset on the frontend
-    craps_game_state['active_bets'] = {
-        'pass_line': 0,
-        'dont_pass': 0,
-        'single_roll': {'type': 'none', 'amount': 0}
-    }
-    return jsonify(craps_game_state)
+    # craps_game_state['active_bets'] = { # This line is no longer needed as reset_craps_game handles session clearing
+    #     'pass_line': 0,
+    #     'dont_pass': 0,
+    #     'single_roll': {'type': 'none', 'amount': 0}
+    # }
+    # Make sure to return the newly reset state from the session
+    return jsonify(get_craps_game_state())
 
 
 # Register blueprints

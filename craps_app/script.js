@@ -32,9 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Deduct from balance
-        playerBalance -= totalBetAmount;
-        updateBalanceDisplay();
+        // Removed local deduction; backend is the source of truth for balance
 
         currentBets = {
             passLine: passLineBet,
@@ -52,9 +50,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(currentBets)
+                body: JSON.stringify({ // Modified structure to match backend
+                    pass_line_bet: passLineBet,
+                    dont_pass_bet: dontPassBet,
+                    single_roll_bet_type: singleRollBetType,
+                    single_roll_bet_amount: singleRollBetAmount
+                })
             });
             const data = await response.json();
+            // console.log("[DEBUG Frontend] Response from /craps_place_bets:", data); // Keep this commented out if console not working for you
             renderGameState(data); // Call renderGameState to update UI with new balance and active bets
         } catch (error) {
             console.error('Error placing bets:', error);
@@ -104,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderGameState(state) {
+        // console.log("[DEBUG Frontend] renderGameState received state:", state); // Keep this commented out if console not working for you
         // Display message and point
         gameStateDisplay.textContent = state.message;
         if (state.point) {
@@ -183,5 +188,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial render of game state and balance
     updateBalanceDisplay();
-    resetGame();
+    // Removed automatic resetGame() call on DOMContentLoaded
 });
