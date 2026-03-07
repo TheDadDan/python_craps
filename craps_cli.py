@@ -247,7 +247,7 @@ class CrapsGame:
             # Process Pass Line bet
             if self.active_bets['pass_line'] > 0:
                 if total in [7, 11]:
-                    payout = self.active_bets['pass_line']
+                    payout = self.active_bets['pass_line'] * 2  # Return bet + profit
                     balance_change += payout
                     messages.append(f"{Colors.GREEN}✅ Won ${payout} on Pass Line!{Colors.RESET}")
                 elif total in [2, 3, 12]:
@@ -257,7 +257,7 @@ class CrapsGame:
             # Process Don't Pass bet
             if self.active_bets['dont_pass'] > 0:
                 if total in [2, 3]:
-                    payout = self.active_bets['dont_pass']
+                    payout = self.active_bets['dont_pass'] * 2  # Return bet + profit
                     balance_change += payout
                     messages.append(f"{Colors.GREEN}✅ Won ${payout} on Don't Pass!{Colors.RESET}")
                 elif total == 7:
@@ -346,7 +346,7 @@ class CrapsGame:
             # Process Pass Line bet
             if self.active_bets['pass_line'] > 0:
                 if total == self.point:
-                    payout = self.active_bets['pass_line']
+                    payout = self.active_bets['pass_line'] * 2  # Return bet + profit
                     balance_change += payout
                     messages.append(f"{Colors.GREEN}✅ Won ${payout} on Pass Line!{Colors.RESET}")
                 elif total == 7:
@@ -356,7 +356,7 @@ class CrapsGame:
             # Process Don't Pass bet
             if self.active_bets['dont_pass'] > 0:
                 if total == 7:
-                    payout = self.active_bets['dont_pass']
+                    payout = self.active_bets['dont_pass'] * 2  # Return bet + profit
                     balance_change += payout
                     messages.append(f"{Colors.GREEN}✅ Won ${payout} on Don't Pass!{Colors.RESET}")
                 elif total == self.point:
