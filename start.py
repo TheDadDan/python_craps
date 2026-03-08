@@ -354,9 +354,24 @@ def craps_reset():
     return jsonify(get_craps_game_state())
 
 
+# Dice Invaders App Blueprint
+dice_invaders_bp = Blueprint('dice_invaders_app', __name__,
+                    template_folder=os.path.join(
+                        app.root_path, 'dice_invaders_app', 'templates'),
+                    static_folder=os.path.join(
+                        app.root_path, 'dice_invaders_app', 'static'),
+                    static_url_path='/static/dice_invaders_app')
+
+
+@dice_invaders_bp.route('/')
+def dice_invaders_index():
+    return render_template('dice_invaders.html')
+
+
 # Register blueprints
 app.register_blueprint(dice_bp, url_prefix='/')
 app.register_blueprint(craps_bp, url_prefix='/craps')
+app.register_blueprint(dice_invaders_bp, url_prefix='/dice-invaders')
 
 if __name__ == "__main__":
     print("Welcome to the Dice Rolling Simulator!")
