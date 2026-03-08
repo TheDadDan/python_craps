@@ -120,7 +120,7 @@ def craps_roll():
                 outcome_message.append(f'Won ${bet_amount * 7} on Any Craps!')
             elif single_roll_bet['type'] == 'two-or-twelve' and (total == 2 or total == 12):
                 balance_change += bet_amount * 31  # 30:1 payout + original bet
-                outcome_message.append(f'Won ${bet_amount * 15} on 2 or 12!')
+                outcome_message.append(f'Won ${bet_amount * 30} on 2 or 12!')
             elif single_roll_bet['type'] == 'three-or-eleven' and (total == 3 or total == 11):
                 balance_change += bet_amount * 16  # 15:1 payout + original bet
                 outcome_message.append(f'Won ${bet_amount * 15} on 3 or 11!')
