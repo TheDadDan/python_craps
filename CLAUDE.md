@@ -14,6 +14,14 @@ python craps_cli.py
 
 There are no tests or linting configured for this project.
 
+## Setup
+
+No `requirements.txt` exists. Install Flask manually:
+
+```bash
+pip install flask
+```
+
 ## Architecture
 
 This is a Flask web app with three mini-apps registered as Blueprints, plus a standalone CLI version:
@@ -25,6 +33,22 @@ This is a Flask web app with three mini-apps registered as Blueprints, plus a st
 
 Game state for the craps app is stored in the Flask `session` (not global variables). The state dict lives at `session['craps_game_state']` and is explicitly written back after every mutation because Flask sessions require reassignment to detect changes.
 
+**Game state shape:**
+```python
+session['craps_game_state'] = {
+    'point': None,           # int (4–10) or None during come-out
+    'round_over': True,      # False while a point is active
+    'last_roll': [],         # [die1, die2]
+    'message': '',           # feedback shown in UI
+    'player_balance': 1000,
+    'active_bets': {
+        'pass_line': 0,
+        'dont_pass': 0,
+        'single_roll': {'type': 'none', 'amount': 0}
+    }
+}
+```
+
 **Key API endpoints in `start.py`:**
 - `POST /craps/craps_roll` — rolls dice and resolves bets; handles both come-out and point-established phases
 - `POST /craps/place_bets` — validates and deducts bets from balance (only allowed between rounds)
@@ -32,6 +56,8 @@ Game state for the craps app is stored in the Flask `session` (not global variab
 - `POST /roll` — dice simulator roll (any number of dice/sides)
 
 **`craps_cli.py`** — Self-contained CLI version using `CrapsGame` class. No Flask; uses ANSI colors and ASCII dice art. Mirrors the same game logic as the web version.
+
+**Dice Invaders** is a pure-frontend game — no server-side state. All game logic lives in `dice_invaders_app/static/script.js` (~700 lines). The Blueprint only serves the HTML page; there are no API endpoints for it.
 
 ## Bet Accounting Pattern
 
