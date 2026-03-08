@@ -12,110 +12,236 @@ document.addEventListener('DOMContentLoaded', () => {
     const singleRollBetTypeSelect = document.getElementById('single-roll-bet-type');
     const singleRollBetAmountInput = document.getElementById('single-roll-bet-amount');
 
-    async function updateGameState() {
-        try {
-            const response = await fetch('/craps/craps_roll', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            const data = await response.json();
-            renderGameState(data);
-        } catch (error) {
-            console.error('Error fetching game state:', error);
-            gameStateDisplay.textContent = 'Error: Could not connect to server.';
+    let gameState = {
+        point: null,
+        roundOver: true,
+        lastRoll: [],
+        message: 'Welcome to Craps! Roll the dice to start a new round.',
+        playerBalance: 1000,
+        activeBets: {
+            passLine: 0,
+            dontPass: 0,
+            singleRoll: { type: 'none', amount: 0 }
         }
+    };
+
+    function rollDice() {
+        return [
+            Math.floor(Math.random() * 6) + 1,
+            Math.floor(Math.random() * 6) + 1
+        ];
     }
 
-    async function resetGame() {
-        try {
-            const response = await fetch('/craps/craps_reset', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            const data = await response.json();
-            renderGameState(data);
-        } catch (error) {
-            console.error('Error resetting game:', error);
-            gameStateDisplay.textContent = 'Error: Could not reset game.';
+    function resolveSingleRollBet(total) {
+        const bet = gameState.activeBets.singleRoll;
+        if (bet.type === 'none' || bet.amount <= 0) return { delta: 0, message: null };
+
+        const amount = bet.amount;
+        let delta = 0;
+        let msg = null;
+
+        if (bet.type === 'any-7' && total === 7) {
+            delta = amount * 5;
+            msg = `Won $${amount * 4} on Any 7!`;
+        } else if (bet.type === 'any-craps' && (total === 2 || total === 3 || total === 12)) {
+            delta = amount * 8;
+            msg = `Won $${amount * 7} on Any Craps!`;
+        } else if (bet.type === 'two-or-twelve' && (total === 2 || total === 12)) {
+            delta = amount * 31;
+            msg = `Won $${amount * 30} on 2 or 12!`;
+        } else if (bet.type === 'three-or-eleven' && (total === 3 || total === 11)) {
+            delta = amount * 16;
+            msg = `Won $${amount * 15} on 3 or 11!`;
+        } else if (bet.type === 'called-2' && total === 2) {
+            delta = amount * 31;
+            msg = `Won $${amount * 30} on Called 2!`;
+        } else if (bet.type === 'called-12' && total === 12) {
+            delta = amount * 31;
+            msg = `Won $${amount * 30} on Called 12!`;
+        } else {
+            msg = `Lost $${amount} on ${bet.type} bet.`;
         }
+
+        gameState.activeBets.singleRoll = { type: 'none', amount: 0 };
+        return { delta, message: msg };
     }
 
-    async function placeBets() {
-        const passLineBet = parseInt(passLineBetInput.value);
-        const dontPassBet = parseInt(dontPassBetInput.value);
-        const singleRollBetType = singleRollBetTypeSelect.value;
-        const singleRollBetAmount = parseInt(singleRollBetAmountInput.value);
+    function handleRoll() {
+        const [d1, d2] = rollDice();
+        const total = d1 + d2;
+        gameState.lastRoll = [d1, d2];
 
-        try {
-            const response = await fetch('/craps/place_bets', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    pass_line_bet: passLineBet,
-                    dont_pass_bet: dontPassBet,
-                    single_roll_bet_type: singleRollBetType,
-                    single_roll_bet_amount: singleRollBetAmount,
-                }),
-            });
-            const data = await response.json();
-            if (data.success) {
-                playerBalanceDisplay.textContent = data.new_balance;
-                // Optionally, clear bet inputs after placing bets
-                passLineBetInput.value = 0;
-                dontPassBetInput.value = 0;
-                singleRollBetTypeSelect.value = 'none';
-                singleRollBetAmountInput.value = 0;
-                // Re-render game state to reflect any immediate changes if needed
-                // renderGameState(data.game_state);
+        const outcomeMessages = [];
+        let balanceChange = 0;
+
+        const srResult = resolveSingleRollBet(total);
+        balanceChange += srResult.delta;
+        if (srResult.message) outcomeMessages.push(srResult.message);
+
+        if (gameState.roundOver) {
+            // Come-out roll
+            const passLine = gameState.activeBets.passLine;
+            const dontPass = gameState.activeBets.dontPass;
+
+            if (total === 7 || total === 11) {
+                gameState.message = `Rolled ${total}. Natural! Round Over.`;
+                if (passLine > 0) {
+                    balanceChange += passLine * 2;
+                    outcomeMessages.push(`Won $${passLine} on Pass Line!`);
+                }
+                if (dontPass > 0) {
+                    outcomeMessages.push(`Lost $${dontPass} on Don't Pass.`);
+                }
+                gameState.activeBets.passLine = 0;
+                gameState.activeBets.dontPass = 0;
+                gameState.roundOver = true;
+            } else if (total === 2 || total === 3 || total === 12) {
+                gameState.message = `Rolled ${total}. Craps! Round Over.`;
+                if (passLine > 0) {
+                    outcomeMessages.push(`Lost $${passLine} on Pass Line.`);
+                }
+                if (dontPass > 0) {
+                    if (total === 12) {
+                        balanceChange += dontPass;
+                        outcomeMessages.push(`Don't Pass: Push on 12, bet returned.`);
+                    } else {
+                        balanceChange += dontPass * 2;
+                        outcomeMessages.push(`Won $${dontPass} on Don't Pass!`);
+                    }
+                }
+                gameState.activeBets.passLine = 0;
+                gameState.activeBets.dontPass = 0;
+                gameState.roundOver = true;
             } else {
-                alert(data.message || 'Failed to place bets.');
+                gameState.point = total;
+                gameState.roundOver = false;
+                gameState.message = `Rolled ${total}. Point is ${total}. Roll again to hit your point or a 7 to lose.`;
             }
-        } catch (error) {
-            console.error('Error placing bets:', error);
-            alert('Error: Could not place bets.');
+        } else {
+            // Point-established roll
+            const point = gameState.point;
+            const passLine = gameState.activeBets.passLine;
+            const dontPass = gameState.activeBets.dontPass;
+
+            if (total === point) {
+                gameState.message = `Rolled ${total}. You hit your Point! Round Over.`;
+                if (passLine > 0) {
+                    balanceChange += passLine * 2;
+                    outcomeMessages.push(`Won $${passLine} on Pass Line!`);
+                }
+                if (dontPass > 0) {
+                    outcomeMessages.push(`Lost $${dontPass} on Don't Pass.`);
+                }
+                gameState.activeBets.passLine = 0;
+                gameState.activeBets.dontPass = 0;
+                gameState.roundOver = true;
+                gameState.point = null;
+            } else if (total === 7) {
+                gameState.message = `Rolled ${total}. Seven Out! Round Over.`;
+                if (passLine > 0) {
+                    outcomeMessages.push(`Lost $${passLine} on Pass Line.`);
+                }
+                if (dontPass > 0) {
+                    balanceChange += dontPass * 2;
+                    outcomeMessages.push(`Won $${dontPass} on Don't Pass!`);
+                }
+                gameState.activeBets.passLine = 0;
+                gameState.activeBets.dontPass = 0;
+                gameState.roundOver = true;
+                gameState.point = null;
+            } else {
+                gameState.message = `Rolled ${total}. Point is ${point}. Roll again.`;
+            }
         }
+
+        gameState.playerBalance += balanceChange;
+
+        if (outcomeMessages.length > 0) {
+            gameState.message += '\n' + outcomeMessages.join('\n');
+        }
+        gameState.message += `\n(Balance: $${gameState.playerBalance})`;
+
+        renderGameState();
     }
 
-    function renderGameState(state) {
-        // Display message and point
-        gameStateDisplay.textContent = state.message;
-        // Clear point display initially, it will be updated after animation if needed
+    function placeBets() {
+        if (!gameState.roundOver) {
+            alert('Cannot place bets during an active round. Please wait for the current round to finish.');
+            return;
+        }
+
+        const passLine = parseInt(passLineBetInput.value) || 0;
+        const dontPass = parseInt(dontPassBetInput.value) || 0;
+        const srType = singleRollBetTypeSelect.value;
+        const srAmount = parseInt(singleRollBetAmountInput.value) || 0;
+
+        if (passLine < 0 || dontPass < 0 || srAmount < 0) {
+            alert('Bet amounts cannot be negative.');
+            return;
+        }
+
+        const total = passLine + dontPass + srAmount;
+        if (total > gameState.playerBalance) {
+            alert('Insufficient balance to place bets.');
+            return;
+        }
+
+        gameState.playerBalance -= total;
+        gameState.activeBets.passLine = passLine;
+        gameState.activeBets.dontPass = dontPass;
+        gameState.activeBets.singleRoll = { type: srType, amount: srAmount };
+        gameState.message = 'Bets placed successfully!';
+
+        passLineBetInput.value = 0;
+        dontPassBetInput.value = 0;
+        singleRollBetTypeSelect.value = 'none';
+        singleRollBetAmountInput.value = 0;
+
+        renderGameState();
+    }
+
+    function resetGame() {
+        gameState = {
+            point: null,
+            roundOver: true,
+            lastRoll: [],
+            message: 'Welcome to Craps! Roll the dice to start a new round.',
+            playerBalance: 1000,
+            activeBets: {
+                passLine: 0,
+                dontPass: 0,
+                singleRoll: { type: 'none', amount: 0 }
+            }
+        };
+        renderGameState();
+    }
+
+    function renderGameState() {
+        gameStateDisplay.textContent = gameState.message;
         pointDisplay.textContent = '';
+        playerBalanceDisplay.textContent = gameState.playerBalance;
 
-        // Update player balance display
-        playerBalanceDisplay.textContent = state.player_balance;
-
-        // Clear existing dice
         diceContainer.innerHTML = '';
         rollResultsDisplay.textContent = '';
 
-        if (state.last_roll && state.last_roll.length === 2) {
-            // Add rolling animation class
+        if (gameState.lastRoll && gameState.lastRoll.length === 2) {
             diceContainer.classList.add('rolling');
 
-            // Create dice for animation
             for (let i = 0; i < 2; i++) {
                 const dieWrapper = document.createElement('div');
                 dieWrapper.classList.add('die-wrapper');
                 const die = document.createElement('div');
                 die.classList.add('die');
-                die.dataset.value = Math.floor(Math.random() * 6) + 1; // Random value for animation
+                die.dataset.value = Math.floor(Math.random() * 6) + 1;
                 drawDots(die, parseInt(die.dataset.value));
                 dieWrapper.appendChild(die);
                 diceContainer.appendChild(dieWrapper);
             }
 
-            // After animation, display actual results
             setTimeout(() => {
                 diceContainer.classList.remove('rolling');
-                diceContainer.innerHTML = ''; // Clear animated dice
-                state.last_roll.forEach(roll => {
+                diceContainer.innerHTML = '';
+                gameState.lastRoll.forEach(roll => {
                     const dieWrapper = document.createElement('div');
                     dieWrapper.classList.add('die-wrapper');
                     const die = document.createElement('div');
@@ -125,19 +251,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     dieWrapper.appendChild(die);
                     diceContainer.appendChild(dieWrapper);
                 });
-                const total = state.last_roll[0] + state.last_roll[1];
-                rollResultsDisplay.textContent = `Rolled: ${state.last_roll[0]} + ${state.last_roll[1]} = ${total}`;
+                const total = gameState.lastRoll[0] + gameState.lastRoll[1];
+                rollResultsDisplay.textContent = `Rolled: ${gameState.lastRoll[0]} + ${gameState.lastRoll[1]} = ${total}`;
 
-                // Display point after animation if applicable
-                if (state.point) {
-                    pointDisplay.textContent = `Point: ${state.point}`;
+                if (gameState.point) {
+                    pointDisplay.textContent = `Point: ${gameState.point}`;
                 } else {
                     pointDisplay.textContent = '';
                 }
-            }, 1000); // Animation duration should match CSS
+            }, 1000);
         }
 
-        if (state.round_over) {
+        if (gameState.roundOver) {
             rollButton.textContent = 'Start New Round';
             resetButton.style.display = 'none';
         } else {
@@ -148,21 +273,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function drawDots(dieElement, value) {
         dieElement.innerHTML = '';
-        if (value >= 1 && value <= 6) { // Ensure value is for a standard die
+        if (value >= 1 && value <= 6) {
             for (let i = 0; i < value; i++) {
                 const dot = document.createElement('div');
                 dot.classList.add('dot');
                 dieElement.appendChild(dot);
             }
-        } else { // For values beyond 6, display the number directly
+        } else {
             dieElement.textContent = value;
         }
     }
 
-    rollButton.addEventListener('click', updateGameState);
+    rollButton.addEventListener('click', handleRoll);
     resetButton.addEventListener('click', resetGame);
     placeBetsButton.addEventListener('click', placeBets);
 
-    // Initial render of game state
-    resetGame();
+    renderGameState();
 });
