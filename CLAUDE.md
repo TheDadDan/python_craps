@@ -16,11 +16,12 @@ There are no tests or linting configured for this project.
 
 ## Architecture
 
-This is a Flask web app with two mini-apps registered as Blueprints, plus a standalone CLI version:
+This is a Flask web app with three mini-apps registered as Blueprints, plus a standalone CLI version:
 
-**`start.py`** — The Flask entry point. It defines both Blueprints and registers them:
+**`start.py`** — The Flask entry point. It defines all Blueprints and registers them:
 - `dice_bp` (Blueprint `dice_app`) — mounted at `/`, serves `web_app/templates/` and `web_app/static/`
 - `craps_bp` (Blueprint `craps_app`) — mounted at `/craps`, serves `craps_app/templates/` and `craps_app/static/`
+- `dice_invaders_bp` (Blueprint `dice_invaders_app`) — mounted at `/dice-invaders`, serves `dice_invaders_app/templates/` and `dice_invaders_app/static/`
 
 Game state for the craps app is stored in the Flask `session` (not global variables). The state dict lives at `session['craps_game_state']` and is explicitly written back after every mutation because Flask sessions require reassignment to detect changes.
 
