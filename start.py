@@ -2,12 +2,14 @@
 # Python 3.13.6
 import random
 import os
+from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify, Blueprint
+
+load_dotenv()
 
 # Main Flask app
 app = Flask(__name__)
-# IMPORTANT: Change this to a strong, random key in production!
-app.config['SECRET_KEY'] = 'your_super_secret_key_here'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your_super_secret_key_here')
 
 # Dice Rolling App Blueprint
 dice_bp = Blueprint('dice_app', __name__,
