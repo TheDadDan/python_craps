@@ -1,4 +1,7 @@
 venv/
+Include/
+Lib/
+scripts/
 __pycache__/
 .claude/
 .env
